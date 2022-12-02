@@ -13,12 +13,12 @@ function part1(input: string): number {
 
 function part2(input: string): number {
   const items = parse(input);
-  throw new Error("TODO");
+  return items.slice(0, 3).reduce((a, b) => a + b, 0)
 }
 
 if (import.meta.main) {
   runPart(2022, 1, 1, part1);
-  // runPart(2022, 1, 2, part2);
+  runPart(2022, 1, 2, part2);
 }
 
 const TEST_INPUT = `\
@@ -43,5 +43,5 @@ Deno.test("part1", () => {
 });
 
 Deno.test("part2", () => {
-  assertEquals(part2(TEST_INPUT), 12);
+  assertEquals(part2(TEST_INPUT), 45000);
 });
