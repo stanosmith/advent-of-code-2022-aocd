@@ -23,21 +23,25 @@ const scissors: IShape = {
   letters: ["C", "Z"],
 };
 
+const shouldLose = 'X'
+const shouldDraw = 'Y'
+const shouldWin = 'Z'
+
 interface IPointMapping {
   [key:string]: IShape
 }
 const rpsPointMapping:IPointMapping = {
   A: rock,
-  X: rock,
+  [shouldLose]: rock,
   B: paper,
-  Y: paper,
+  [shouldDraw]: paper,
   C: scissors,
-  Z: scissors,
+  [shouldWin]: scissors,
 };
 
-const win = calcTotalScore(6);
-const lose = calcTotalScore(0);
-const draw = calcTotalScore(3);
+const calcWin = calcTotalScore(6);
+const calcLose = calcTotalScore(0);
+const calcDraw = calcTotalScore(3);
 
 function parse(input: string) {
   return input
@@ -58,19 +62,26 @@ function part1(input: string): number {
     .reduce((totalPoints, points) => totalPoints + points);
 }
 
-function part2(input: string): number {
+function part2(input:string) {
   const items = parse(input);
-  throw new Error("TODO");
+  return items
+    .map((game) => {
+      const player1 = rpsPointMapping[game[0]];
+      const player2 = game[1];
+
+      return getGamePointsPartTwo(player1, player2);
+    })
+    .reduce((totalPoints, points) => totalPoints + points)
 }
 
 if (import.meta.main) {
   runPart(2022, 2, 1, part1);
-  // runPart(2022, 2, 2, part2);
+  runPart(2022, 2, 2, part2);
 }
 
 function getGamePoints(player1: IShape, player2: IShape) {
   if (player1.shape === player2.shape) {
-    return draw(player2.points);
+    return calcDraw(player2.points);
   }
 
   if (
@@ -81,11 +92,55 @@ function getGamePoints(player1: IShape, player2: IShape) {
     // 1 > 3: Rock defeats Scissors
     // 2 > 1: Paper defeats Rock
     // 3 > 2: Scissors defeats Paper
-    return win(player2.points);
+    return calcWin(player2.points);
   } else {
-    return lose(player2.points);
+    return calcLose(player2.points);
   }
 }
+
+function getGamePointsPartTwo(player1:IShape, player2Strategy:string) {
+  if (player2Strategy === shouldDraw) {
+    return calcDraw(player1.points);
+  }
+
+  // 1 > 3: Rock defeats Scissors
+  // 2 > 1: Paper defeats Rock
+  // 3 > 2: Scissors defeats Paper
+  if (player2Strategy === shouldWin) {
+    let winningShape
+    switch (player1.shape) {
+      case scissors.shape:
+        winningShape = rock
+        break;
+      case rock.shape:
+        winningShape = paper
+        break;
+      case paper.shape:
+        winningShape = scissors
+        break;
+      default:
+        throw `Invalid shape "${player1.shape}"`
+    }
+    return calcWin(winningShape.points);
+  } else {
+    let losingShape
+    switch (player1.shape) {
+      case scissors.shape:
+        losingShape = paper
+        break;
+      case rock.shape:
+        losingShape = scissors
+        break;
+      case paper.shape:
+        losingShape = rock
+        break;
+      default:
+        throw `Invalid shape "${player1.shape}"`
+    }
+    return calcLose(losingShape.points);
+  }
+}
+
 
 function calcTotalScore(resultPoints: number) {
   return function winLoseDraw(rpsPoints: number) {
@@ -103,6 +158,6 @@ Deno.test("part1", () => {
   assertEquals(part1(TEST_INPUT), 15);
 });
 
-// Deno.test("part2", () => {
-//   assertEquals(part2(TEST_INPUT), 12);
-// });
+Deno.test("part2", () => {
+  assertEquals(part2(TEST_INPUT), 12);
+});
