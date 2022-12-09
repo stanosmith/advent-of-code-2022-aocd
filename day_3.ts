@@ -3,14 +3,14 @@ import { runPart } from "https://deno.land/x/aocd@v1.1.0/mod.ts"
 import * as R from "https://deno.land/x/ramda@v0.27.2/mod.ts"
 
 const alphaBET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const allItemTypes = R.split("", alphaBET)
+const allItemTypes = [...alphaBET]
 
 function parse(input: string) {
   return input.trimEnd().split("\n")
 }
 
 const getPriorityLevel = (letter: string) => R.indexOf(letter, allItemTypes) + 1
-const splitCompartments = (compartment: string) => R.split("", compartment)
+const splitCompartments = (compartment: string) => [...compartment]
 const getCompartments = (rucksack: string) =>
   R.splitAt(rucksack.length / 2, rucksack)
 const processGroups = (rucksack: string) => {
