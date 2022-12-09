@@ -33,14 +33,23 @@ function part1(input: string): number {
     })
     .reduce((sum: number, value: number) => sum + value, 0)
 }
+
 function part2(input: string): number {
-  const items = parse(input)
-  throw new Error("TODO")
+  const assignmentPairs = parse(input)
+
+  console.log(assignmentPairs.length)
+
+  return assignmentPairs
+    .map((assignmentPair: number[]) => {
+      const intersection = R.intersection(...assignmentPair)
+      return intersection.length > 0 ? 1 : 0
+    })
+    .reduce((sum: number, value: number) => sum + value, 0)
 }
 
 if (import.meta.main) {
   runPart(2022, 4, 1, part1)
-  // runPart(2022, 4, 2, part2);
+  runPart(2022, 4, 2, part2)
 }
 
 const TEST_INPUT = `\
@@ -56,6 +65,6 @@ Deno.test("part1", () => {
   assertEquals(part1(TEST_INPUT), 2)
 })
 
-// Deno.test("part2", () => {
-//   assertEquals(part2(TEST_INPUT), 12)
-// })
+Deno.test("part2", () => {
+  assertEquals(part2(TEST_INPUT), 4)
+})
