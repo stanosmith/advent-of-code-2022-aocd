@@ -55,55 +55,74 @@ function parse(input: string) {
   }
 }
 
-function part1(input: string): string {
-  // After the rearrangement procedure completes, what crate ends up on top of each stack?
-  const items = parse(input)
-  const { stacks, moves } = items
+enum CrateMoverModels {
+  ZERO_ZERO = 9000,
+  ZERO_ONE = 9001,
+}
 
-  // Loop through the moves and make changes to the stacks
-  const executeMoves = (
+function executeWithMoverModel(modelNumber: CrateMoverModels) {
+  return function executeMoves(
     rearrangedStacks: Array<string[]>,
     instruction: Instruction,
-  ) => {
+  ) {
     const fromStackIndex = instruction.from - 1
     const toStackIndex = instruction.to - 1
 
     // Get the array of crates to move
-    const cratesToMove = R.take(
+    let cratesToMove = R.take(
       instruction.move,
       rearrangedStacks[fromStackIndex],
     )
+    if (modelNumber === CrateMoverModels.ZERO_ZERO) {
+      cratesToMove = R.reverse(cratesToMove)
+    }
+
     // Remove the crates from the target stack
     const stackMissingCrates = rearrangedStacks[fromStackIndex].slice(
       instruction.move,
     )
     // Concat the moved crates onto the target stack (in reverse order)
     const stackWithNewCrates = R.concat(
-      R.reverse(cratesToMove),
+      cratesToMove,
       rearrangedStacks[instruction.to - 1],
     )
 
-    let updatedStacks = [...rearrangedStacks]
+    const updatedStacks = [...rearrangedStacks]
     updatedStacks[fromStackIndex] = stackMissingCrates
     updatedStacks[toStackIndex] = stackWithNewCrates
     return updatedStacks
   }
+}
 
-  const getTopCrates = (topCrates: string, stack: string[]) => {
-    return R.concat(topCrates, stack[0])
-  }
+function getTopCrates(topCrates: string, stack: string[]) {
+  return R.concat(topCrates, stack[0])
+}
 
+function part1(input: string): string {
+  // After the rearrangement procedure completes, what crate ends up on top of each stack?
+  const items = parse(input)
+  const { stacks, moves } = items
+
+  const executeMoves = executeWithMoverModel(CrateMoverModels.ZERO_ZERO)
+
+  // Loop through the moves and make changes to the stacks
   return R.reduce(getTopCrates, "", R.reduce(executeMoves, stacks, moves))
 }
 
 function part2(input: string): string {
+  // After the rearrangement procedure completes, what crate ends up on top of each stack?
   const items = parse(input)
-  throw new Error("TODO")
+  const { stacks, moves } = items
+
+  const executeMoves = executeWithMoverModel(CrateMoverModels.ZERO_ONE)
+
+  // Loop through the moves and make changes to the stacks
+  return R.reduce(getTopCrates, "", R.reduce(executeMoves, stacks, moves))
 }
 
 if (import.meta.main) {
   runPart(2022, 5, 1, part1)
-  // runPart(2022, 5, 2, part2);
+  runPart(2022, 5, 2, part2)
 }
 
 const TEST_INPUT = `\
@@ -122,6 +141,6 @@ Deno.test("part1", () => {
   assertEquals(part1(TEST_INPUT), "CMZ")
 })
 
-// Deno.test("part2", () => {
-//   assertEquals(part2(TEST_INPUT), 12)
-// })
+Deno.test("part2", () => {
+  assertEquals(part2(TEST_INPUT), "MCD")
+})
